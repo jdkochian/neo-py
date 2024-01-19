@@ -2,6 +2,7 @@ import requests
 from dotenv import load_dotenv
 from datetime import date
 import os
+from twitter_util import tweet_thread
 
 today = date.today() 
 load_dotenv()
@@ -55,6 +56,4 @@ def create_tweets(data) -> list[str]:
     return res
 
 tweets = create_tweets(get_nasa_data())
-for tweet in tweets: 
-    print(tweet)
-    print('------')
+tweet_thread(tweets)
