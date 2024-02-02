@@ -1,8 +1,9 @@
 import requests
 from dotenv import load_dotenv
-from datetime import date
+from datetime import date, datetime
 import os
 from twitter_util import tweet_thread
+from asteroid_util import plot_asteroid_orbit_from_id, delete_asteroid_plot
 
 today = date.today() 
 load_dotenv()
@@ -30,6 +31,7 @@ def get_nasa_data():
 
 #TODO: add emojis
 #TODO: format date in first tweet 
+#TODO: change "first approach" to "closest approach"
 def create_tweets(data) -> list[str]: 
     """
     Parse the data returned from `get_nasa_data` and formulate a list of strings corresponding to a thread of tweets per each object.
@@ -41,6 +43,11 @@ def create_tweets(data) -> list[str]:
         size_data = entry["estimated_diameter"]
         approach_data = entry["close_approach_data"][0]
         time_of_approach = approach_data['close_approach_date_full'].split(' ')[1]
+        exact_time_of_approach = datetime.utcfromtimestamp(approach_data['epoch_date_close_approach'] / 1000)
+
+        # plot_asteroid_orbit_from_id(entry['id'], entry['name'], exact_time_of_approach)
+        # delete_asteroid_plot(entry['id'])
+
 
         s = ''
         s += f'{entry["name"]} will be making its close approach at {time_of_approach}.\n'
@@ -56,4 +63,4 @@ def create_tweets(data) -> list[str]:
     return res
 
 tweets = create_tweets(get_nasa_data())
-tweet_thread(tweets)
+# tweet_thread(tweets)
