@@ -4,6 +4,7 @@ from datetime import date, datetime
 import os
 from twitter_util import tweet_thread
 from asteroid_util import plot_asteroid_orbit_from_id, delete_asteroid_plot
+from emoji import emojize
 
 today = date.today() 
 load_dotenv()
@@ -30,33 +31,37 @@ def get_nasa_data():
         print('Error', response.status_code, response)
 
 #TODO: add emojis
-#TODO: format date in first tweet 
 def create_tweets(data): 
     """
     Parse the data returned from `get_nasa_data` and formulate a list of strings corresponding to a thread of tweets per each object.
     """
     res = [] 
 
-    res.append(f'Today, {today}, there will be {data["element_count"]} NEO\'s making their closest approach.\n\n1/{data["element_count"] + 1}')
+    res.append(emojize(f':calendar: Today, {today.strftime("%m/%d/%y")}, there will be {data["element_count"]} NEO\'s making their closest approach.\n\n1/{data["element_count"] + 1} :thread::backhand_index_pointing_down:'))
 
     for i, entry in enumerate(data['near_earth_objects'][today.strftime('%Y-%m-%d')]): 
         size_data = entry["estimated_diameter"]
         approach_data = entry["close_approach_data"][0]
         time_of_approach = approach_data['close_approach_date_full'].split(' ')[1]
         exact_time_of_approach = datetime.utcfromtimestamp(approach_data['epoch_date_close_approach'] / 1000)
+        is_danger = entry["is_potentially_hazardous_asteroid"]
 
         plot_asteroid_orbit_from_id(entry['id'], entry['name'], exact_time_of_approach)
+        # delete_asteroid_plot(entry['id'])
     
         s = ''
-        s += f'{entry["name"]} will be making its close approach at {time_of_approach}.\n'
-        s += f'Diameter: between {size_data["feet"]["estimated_diameter_min"]:,.0f} and {size_data["feet"]["estimated_diameter_max"]:,.0f} feet across.\n'
-        s += f'At its closest it will be {float(approach_data["miss_distance"]["miles"]):,.0f} miles away, moving at {float(approach_data["relative_velocity"]["miles_per_hour"]):,.0f}mph!\n\n'
-        s += f'This asteroid {"is" if entry["is_potentially_hazardous_asteroid"] else "is not"} considered potentially hazardous by NASA.\n\n'
-        s += f'{i + 2}/{data["element_count"] + 1}'
+        s += emojize(f':comet: {entry["name"]} will be making its close approach at {time_of_approach}.\n :comet:')
+        s += emojize(f'Diameter: between {size_data["feet"]["estimated_diameter_min"]:,.0f} and {size_data["feet"]["estimated_diameter_max"]:,.0f} feet across.\n')
+        s += emojize(f'At its closest it will be {float(approach_data["miss_distance"]["miles"]):,.0f} miles away, moving at {float(approach_data["relative_velocity"]["miles_per_hour"]):,.0f}mph!\n\n')
+        s += emojize(f'{":warning:" if is_danger else ":check_mark_button:"} This asteroid {"is" if entry["is_potentially_hazardous_asteroid"] else "is not"} considered potentially hazardous by NASA {":warning:" if is_danger else ":check_mark_button:"}\n\n')
+        s += emojize(f'{i + 2}/{data["element_count"] + 1} :thread:')
 
         res.append((s, f'tmp/{entry["id"]}.png'))
+
 
     return res
 
 tweets = create_tweets(get_nasa_data())
+# for tweet in tweets: 
+#     print(tweet)
 tweet_thread(tweets)
