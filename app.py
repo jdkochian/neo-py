@@ -2,9 +2,11 @@ import requests
 from dotenv import load_dotenv
 from datetime import date, datetime
 import os
-from twitter_util import tweet_thread
+from twitter_util import tweet_thread, tweet_at_specific_time
 from asteroid_util import plot_asteroid_orbit_from_id, delete_asteroid_plot
 from emoji import emojize
+import schedule 
+import time
 
 today = date.today() 
 load_dotenv()
@@ -61,7 +63,25 @@ def create_tweets(data):
 
     return res
 
-tweets = create_tweets(get_nasa_data())
-# for tweet in tweets: 
-#     print(tweet)
-tweet_thread(tweets)
+
+
+def create_tweet(asteroid, time): 
+    return f'{asteroid} {time}'
+
+if __name__=="__main__": 
+    # This is a proof of concept that I can have code that tweets when the asteroids are nearby 
+    # TODO: re-format tweets now that they are not going to be in a thread anymore 
+    # TODO: test this system to make sure all objects get reported 
+    # TODO: schedule the tewets at the right time, accounting for timezones (this seems to be local)
+    # data = get_nasa_data()
+    # for i, entry in enumerate(data['near_earth_objects'][today.strftime('%Y-%m-%d')]): 
+    #     if i == 0: 
+    #         schedule.every().day.at('00:11').do(tweet_at_specific_time, tweet=create_tweet(entry['name'], entry["close_approach_data"][0]['close_approach_date_full'].split(' ')[1]))
+
+
+    # while len(schedule.get_jobs()) > 0: 
+    #     schedule.run_pending()
+    #     time.sleep(1)
+
+    tweets = create_tweets(get_nasa_data())
+    tweet_thread(tweets)

@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import re
 import tweepy
+import schedule
 
 load_dotenv()
 
@@ -28,7 +29,13 @@ def tweet_thread(thread : list[str]):
         tweet_to_reply_to = next_tweet_in_thread_response.data['id']
 
 
-# TODO: One tweepy v2 can handle media uploading, reformat
+def tweet_at_specific_time(tweet : str): 
+
+    api.create_tweet(text=tweet)
+    return schedule.CancelJob
+
+
+# TODO: One tweepy v2 can handle media uploading, update code
 def upload_media(filepath): 
     """
     Upload the image to twitter using v1.1 api (not supported in tweepy api v2 for some reason)
