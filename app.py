@@ -33,7 +33,7 @@ def get_nasa_data():
         print('Error', response.status_code, response)
 
 #TODO: add emojis
-def create_tweets(data): 
+def create_tweets_v1(data): 
     """
     Parse the data returned from `get_nasa_data` and formulate a list of strings corresponding to a thread of tweets per each object.
     """
@@ -65,23 +65,35 @@ def create_tweets(data):
 
 
 
-def create_tweet(asteroid, time): 
-    return f'{asteroid} {time}'
+def create_tweet_v2(asteroid_data): 
+    size_data = asteroid_data['estimated_diameter']
+    approach_data = asteroid_data["close_approach_data"][0]
+    time_of_approach = approach_data['close_approach_date_full'].split(' ')[1]
+    exact_time_of_approach = datetime.utcfromtimestamp(approach_data['epoch_date_close_approach'] / 1000)
+    is_danger = asteroid_data["is_potentially_hazardous_asteroid"]
+
+
+    # plot_asteroid_orbit_from_id(asteroid_data['id'], asteroid_data['name'], exact_time_of_approach)
+
+    s = emojize(f':comet: {asteroid_data["name"]} just made its close approach at {time_of_approach}.\n :comet:')
+
+    return s
+
 
 if __name__=="__main__": 
     # This is a proof of concept that I can have code that tweets when the asteroids are nearby 
     # TODO: re-format tweets now that they are not going to be in a thread anymore 
     # TODO: test this system to make sure all objects get reported 
     # TODO: schedule the tewets at the right time, accounting for timezones (this seems to be local)
-    # data = get_nasa_data()
-    # for i, entry in enumerate(data['near_earth_objects'][today.strftime('%Y-%m-%d')]): 
-    #     if i == 0: 
-    #         schedule.every().day.at('00:11').do(tweet_at_specific_time, tweet=create_tweet(entry['name'], entry["close_approach_data"][0]['close_approach_date_full'].split(' ')[1]))
+    data = get_nasa_data()
+    for i, entry in enumerate(data['near_earth_objects'][today.strftime('%Y-%m-%d')]): 
+        schedule.every().day.at(entry["close_approach_data"][0]['close_approach_date_full'].split(' ')[1]).do(tweet_at_specific_time, tweet=create_tweet_v2(entry))
 
 
-    # while len(schedule.get_jobs()) > 0: 
-    #     schedule.run_pending()
-    #     time.sleep(1)
+    while len(schedule.get_jobs()) > 0: 
+        schedule.run_pending()
+        time.sleep(1)
 
-    tweets = create_tweets(get_nasa_data())
-    tweet_thread(tweets)
+    # tweets = create_tweets_v1(get_nasa_data())
+    # tweet_thread(tweets)
+    # pass
