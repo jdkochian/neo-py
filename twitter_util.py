@@ -29,9 +29,13 @@ def tweet_thread(thread : list[str]):
         tweet_to_reply_to = next_tweet_in_thread_response.data['id']
 
 
-def tweet_at_specific_time(tweet : str): 
+def tweet_at_specific_time(tweet : str, img_src : str): 
 
     api.create_tweet(text=tweet)
+    diagram_media_id = upload_media(img_src)
+    api.create_tweet(text=tweet, media_ids=[diagram_media_id])
+    os.remove(img_src)
+
     return schedule.CancelJob
 
 

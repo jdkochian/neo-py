@@ -27,6 +27,9 @@ def plot_asteroid_orbit_from_id(asteroid_id, asteroid_name, date_time):
     plt.savefig(f'tmp/{asteroid_id}.png', bbox_inches='tight')
 
 
+def get_from_asteroid_id(asteroid_id): 
+    return(f'tmp/{asteroid_id}.png')
+
 def delete_asteroid_plot(asteroid_id): 
     remove(f'tmp/{asteroid_id}.png')
 
