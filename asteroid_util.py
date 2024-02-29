@@ -2,7 +2,6 @@ from poliastro.bodies import Sun, Earth
 from poliastro.frames import Planes
 from poliastro.plotting import StaticOrbitPlotter
 from poliastro.twobody import Orbit
-from poliastro.ephem import Ephem
 from astropy.time import Time
 import matplotlib.pyplot as plt
 from os import remove
@@ -32,5 +31,3 @@ def get_from_asteroid_id(asteroid_id):
 
 def delete_asteroid_plot(asteroid_id): 
     remove(f'tmp/{asteroid_id}.png')
-
-plot_asteroid_orbit_from_id(3422140, '2008 OS7', "2024-02-02 14:41")

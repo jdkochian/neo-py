@@ -77,7 +77,7 @@ def create_tweet_v2(asteroid_data):
 
 
     s = ''
-    s += emojize(f':comet: {asteroid_data["name"]} just made its close approach at {time_of_approach}.:comet:\n')
+    s += emojize(f':comet: {asteroid_data["name"]} just made its close approach at {time_of_approach} :comet: \n')
     s += emojize(f'Diameter: between {size_data["feet"]["estimated_diameter_min"]:,.0f} and {size_data["feet"]["estimated_diameter_max"]:,.0f} feet across.\n')
     s += emojize(f'At its closest it will be {float(approach_data["miss_distance"]["miles"]):,.0f} miles away, moving at {float(approach_data["relative_velocity"]["miles_per_hour"]):,.0f}mph!\n\n')
     s += emojize(f'{":warning:" if is_danger else ":check_mark_button:"} This asteroid {"is" if entry["is_potentially_hazardous_asteroid"] else "is not"} considered potentially hazardous by NASA {":warning:" if is_danger else ":check_mark_button:"}\n\n')
