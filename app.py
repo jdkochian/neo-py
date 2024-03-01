@@ -77,28 +77,24 @@ def create_tweet_v2(asteroid_data):
 
 
     s = ''
-    s += emojize(f':comet: {asteroid_data["name"]} just made its close approach at {time_of_approach} :comet: \n')
-    s += emojize(f'Diameter: between {size_data["feet"]["estimated_diameter_min"]:,.0f} and {size_data["feet"]["estimated_diameter_max"]:,.0f} feet across.\n')
-    s += emojize(f'At its closest it will be {float(approach_data["miss_distance"]["miles"]):,.0f} miles away, moving at {float(approach_data["relative_velocity"]["miles_per_hour"]):,.0f}mph!\n\n')
-    s += emojize(f'{":warning:" if is_danger else ":check_mark_button:"} This asteroid {"is" if entry["is_potentially_hazardous_asteroid"] else "is not"} considered potentially hazardous by NASA {":warning:" if is_danger else ":check_mark_button:"}\n\n')
+    s += emojize(f':comet: {asteroid_data["name"]} just made its close approach at {time_of_approach}UTC. \n\n')
+    s += emojize(f'Diameter: {size_data["feet"]["estimated_diameter_min"]:,.0f}-{size_data["feet"]["estimated_diameter_max"]:,.0f} feet across.\n\n')
+    s += emojize(f'It was {float(approach_data["miss_distance"]["miles"]):,.0f} miles away, moving at {float(approach_data["relative_velocity"]["miles_per_hour"]):,.0f}mph!\n\n')
+    s += emojize(f'{":warning:" if is_danger else ":check_mark_button:"} This asteroid {"is" if is_danger else "is not"} considered potentially hazardous by NASA. \n\n')
 
     return s
 
 
-if __name__=="__main__": 
-    # This is a proof of concept that I can have code that tweets when the asteroids are nearby 
-    # TODO: re-format tweets now that they are not going to be in a thread anymore 
-    # TODO: test this system to make sure all objects get reported 
-    # TODO: schedule the tewets at the right time, accounting for timezones (this seems to be local)
+def schedule_tweets(): 
     data = get_nasa_data()
-    for i, entry in enumerate(data['near_earth_objects'][today.strftime('%Y-%m-%d')]): 
+    for entry in data['near_earth_objects'][today.strftime('%Y-%m-%d')]: 
         schedule.every().day.at(entry["close_approach_data"][0]['close_approach_date_full'].split(' ')[1]).do(tweet_at_specific_time, tweet=create_tweet_v2(entry), img_src=get_from_asteroid_id(entry['id']))
 
+
+
+if __name__=="__main__": 
+    schedule.every.day.at('00:00').do(schedule_tweets)    
 
     while len(schedule.get_jobs()) > 0: 
         schedule.run_pending()
         time.sleep(1)
-
-    # tweets = create_tweets_v1(get_nasa_data())
-    # tweet_thread(tweets)
-    # pass
