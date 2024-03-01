@@ -93,7 +93,7 @@ def schedule_tweets():
 
 
 if __name__=="__main__": 
-    schedule.every.day.at('00:00').do(schedule_tweets)    
+    schedule.every().day.at('00:00').do(schedule_tweets)    
 
     while len(schedule.get_jobs()) > 0: 
         schedule.run_pending()
