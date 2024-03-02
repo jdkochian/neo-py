@@ -8,22 +8,25 @@ from emoji import emojize
 import schedule 
 import time
 
-today = date.today() 
 load_dotenv()
 
 NASA_API_KEY = os.getenv('NASA_API_KEY')
 
 nasa_endpoint = 'https://api.nasa.gov/neo/rest/v1/feed'
-params = { 
-    'api_key' : NASA_API_KEY, 
-    'start_date' : today, 
-    'end_date' : today
-}
 
 def get_nasa_data(): 
     """
     Hit the nasa NEOWs endpoint for today's date to return the objects that are approaching Earth today.
     """
+    
+    today = date.today() 
+
+    params = { 
+    'api_key' : NASA_API_KEY, 
+    'start_date' : today, 
+    'end_date' : today
+    }
+    
     try: 
         response = requests.get(nasa_endpoint, params=params)
         if response.status_code == 200: 
@@ -87,6 +90,7 @@ def create_tweet_v2(asteroid_data):
 
 def schedule_tweets(): 
     data = get_nasa_data()
+    today = date.today() 
     for entry in data['near_earth_objects'][today.strftime('%Y-%m-%d')]: 
         schedule.every().day.at(entry["close_approach_data"][0]['close_approach_date_full'].split(' ')[1]).do(tweet_at_specific_time, tweet=create_tweet_v2(entry), img_src=get_from_asteroid_id(entry['id']))
 
