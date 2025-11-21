@@ -41,6 +41,7 @@ def create_tweets_v1(data):
     Parse the data returned from `get_nasa_data` and formulate a list of strings corresponding to a thread of tweets per each object.
     """
     res = [] 
+    today = date.today()
 
     res.append(emojize(f':calendar: Today, {today.strftime("%m/%d/%y")}, there will be {data["element_count"]} NEO\'s making their closest approach.\n\n1/{data["element_count"] + 1} :thread::backhand_index_pointing_down:'))
 
@@ -88,17 +89,23 @@ def create_tweet_v2(asteroid_data):
     return s
 
 
+# todo: network error exceptions 
 def schedule_tweets(): 
     data = get_nasa_data()
     today = date.today() 
     for entry in data['near_earth_objects'][today.strftime('%Y-%m-%d')]: 
-        schedule.every().day.at(entry["close_approach_data"][0]['close_approach_date_full'].split(' ')[1]).do(tweet_at_specific_time, tweet=create_tweet_v2(entry), img_src=get_from_asteroid_id(entry['id']))
+        # do not run if the time has already passed
+        time_of_approach = datetime.strptime(entry["close_approach_data"][0]['close_approach_date_full'].split(' ')[1], '%H:%M')
+        time_of_approach = datetime.combine(datetime.today(), time_of_approach.time())
+        now = datetime.now()
 
+        if (time_of_approach < now):
+            schedule.every().day.at(entry["close_approach_data"][0]['close_approach_date_full'].split(' ')[1]).do(tweet_at_specific_time, tweet=create_tweet_v2(entry), img_src=get_from_asteroid_id(entry['id']))
 
 
 if __name__=="__main__": 
     schedule.every().day.at('00:00').do(schedule_tweets)    
-
     while len(schedule.get_jobs()) > 0: 
         schedule.run_pending()
         time.sleep(1)
+    
